@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOTO GO USUARIO</title>
+    <style>
+        /* Estilo global */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0066cc; /* Fondo azul fuerte */
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Contenedor del formulario */
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #ff6600; /* Bordes naranjas */
+            width: 100%;
+            max-width: 600px;
+        }
+
+        /* Título */
+        h1 {
+            text-align: center;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: #ff6600; /* Título en color naranja */
+            font-size: 28px; /* Tamaño del título */
+            font-weight: bold; /* Negrita */
+        }
+
+        /* Etiquetas y inputs */
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            opacity: 0.7;
+        }
+
+        input[type="text"], input[type="tel"] {
+            background-color: #e0f7fa; /* Fondo verde menta */
+        }
+
+        input:focus {
+            border-color: #ff6600;
+            outline: none;
+        }
+
+        /* Botones */
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .ubicacion button {
+            margin-bottom: 15px; /* Separar el botón de ubicación del botón de enviar */
+        }
+
+        /* Casilla de términos */
+        .terms-container {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .terms-container input {
+            margin-right: 10px;
+        }
+
+        .terms-container label {
+            font-weight: normal;
+        }
+
+        /* Enlace de ayuda */
+        .help-link {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .help-link a {
+            color: #ff6600;
+            text-decoration: none;
+        }
+
+        .help-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsividad */
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>MOTO GO USUARIOS</h1>
+        <form id="motoForm">
+            <label for="nombre">usuario:</label>
+            <input type="text" id="nombre" placeholder="Escribe tu nombre" required>
+
+            <label for="barrio">Estoy en.:</label>
+            <input type="text" id="barrio" placeholder="Donde estas ?" required>
+
+            <label for="destino">Necesito ir a nombre lugar:</label>
+            <input type="text" id="destino" placeholder="Destino" required>
+
+            <label for="telefono">Mi teléfono N. Es:</label>
+            <input type="tel" id="telefono" placeholder="Número de teléfono" required>
+
+            <div class="ubicacion">
+                <button type="button" id="locationButton">Ubicación</button>
+                <p id="locationStatus" style="color: green; display: none;">Ubicación exitosa</p>
+            </div>
+
+            <button type="submit" id="submitButton" disabled>Solicitar ahora</button>
+
+            <div class="terms-container">
+                <input type="checkbox" id="terminos" required>
+                <label for="terminos">Acepto los <a href="privacidad.html" target="_blank">términos y condiciones</a></label>
+            </div>
+        </form>
+
+        <div class="help-link">
+            <p><a href="https://wa.me/573127305122?text=Hola%21%20MOTO%20Go%20estoy%20necesito%20ayuda" target="_blank">¿Tiene problema para enviar una solicitud?</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const locationButton = document.getElementById("locationButton");
+            const locationStatus = document.getElementById("locationStatus");
+            const submitButton = document.getElementById("submitButton");
+            const termsCheckbox = document.getElementById("terminos");
+            const form = document.getElementById("motoForm");
+
+            let userLocation = ""; // Variable para guardar la ubicación
+
+            // Activar el botón de envío solo si los términos están aceptados
+            termsCheckbox.addEventListener("change", function () {
+                submitButton.disabled = !termsCheckbox.checked;
+            });
+
+            // Función para obtener la ubicación del usuario
+            locationButton.addEventListener("click", function () {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function (position) {
+                        const lat = position.coords.latitude;
+                        const lon = position.coords.longitude;
+                        userLocation = `https://www.google.com/maps?q=${lat},${lon}`;
+                        locationStatus.style.display = 'block'; // Mostrar "Ubicación exitosa"
+                    }, function () {
+                        alert("No se pudo obtener la ubicación. Por favor, inténtalo de nuevo.");
+                        locationStatus.style.display = 'none';
+                        userLocation = ""; // Asegúrate de que no haya una ubicación inválida
+                    });
+                } else {
+                    alert("Geolocalización no soportada por tu navegador.");
+                }
+            });
+
+            // Validar que la ubicación exista antes de enviar
+            form.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                if (!userLocation) {
+                    alert("Debe obtener su ubicación antes de enviar la solicitud.");
+                    return;
+                }
+
+                const nombre = document.getElementById("nombre").value;
+                const barrio = document.getElementById("barrio").value;
+                const destino = document.getElementById("destino").value;
+                const telefono = document.getElementById("telefono").value;
+
+                const mensaje = `
+USUARIO:
+Nombre: ${nombre}
+Estoy en: ${barrio}
+Voy a: ${destino}
+Teléfono: ${telefono}
+Mi ubicación: ${userLocation}
+`;
+
+                const whatsappURL = `https://wa.me/573127305122?text=${encodeURIComponent(mensaje)}`;
+                window.open(whatsappURL, "_blank");
+            });
+        });
+    </script>
+</body>
+</html>
